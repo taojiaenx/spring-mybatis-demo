@@ -1,0 +1,65 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+    <!-- mybatis related... start -->
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<!-- 这里支持多种寻址方式：classpath和file -->
+				<value>classpath:jdbc.properties</value>
+				<!-- 推荐使用file的方式引入，这样可以将配置和代码分离 -->
+			</list>
+		</property>
+	</bean>
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+		init-method="init" destroy-method="close">
+		<property name="url" value="jdbc:mysql://${jdbc.host}:${jdbc.port}/${jdbc.database}?useUnicode=true&amp;characterEncoding=utf8" />
+     <property name="username"><value>${jdbc.username}</value></property>
+     <property name="password" value="${jdbc.password}" />
+
+     <property name="filters"><value>stat</value></property>
+
+     <property name="maxActive"><value>20</value></property>
+     <property name="initialSize"><value>1</value></property>
+     <property name="maxWait"><value>60000</value></property>
+     <property name="minIdle"><value>1</value></property>
+
+     <property name="timeBetweenEvictionRunsMillis"><value>60000</value></property>
+     <property name="minEvictableIdleTimeMillis"><value>300000</value></property>
+
+     <property name="validationQuery"><value>SELECT 'x'</value></property>
+     <property name="testWhileIdle"><value>true</value></property>
+     <property name="testOnBorrow"><value>false</value></property>
+     <property name="testOnReturn"><value>false</value></property>
+
+     <property name="poolPreparedStatements"><value>true</value></property>
+     <property name="maxOpenPreparedStatements"><value>20</value></property>
+	</bean>
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation" value="/WEB-INF/mybatis-config.xml" />
+	</bean>
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.defonds.bdp.*.mapper"/>
+    </bean>
+    <!-- mybatis related... end -->
+
+	<!-- class annotation related... start -->
+	<context:component-scan base-package="com.defonds.bdp.*.service" />
+	<!-- class annotation related... end -->
+	<context:annotation-config />
+
+	<!-- transaction config related... start -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<!-- transaction config related... end -->
+</beans>

@@ -1,0 +1,4 @@
+com\defonds\bdp\city\service\CityService.class
+com\defonds\bdp\city\mapper\CityMapper.class
+com\defonds\bdp\city\controller\CityController.class
+com\defonds\bdp\city\bean\City.class
